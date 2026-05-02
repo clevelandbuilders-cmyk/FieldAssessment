@@ -39,6 +39,16 @@ background:var(–bg);position:sticky;top:0;z-index:50;
 .btn-settings{background:none;border:1px solid var(–border);color:var(–cream-dim);width:36px;height:36px;border-radius:4px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .btn-settings:hover{border-color:var(–gold);color:var(–gold)}
 
+/* ── HERO ── */
+.app-hero{
+background:linear-gradient(160deg,#1c1a12 0%,#0a0908 70%);
+border-bottom:1px solid var(–border);
+padding:40px 24px 36px;text-align:center;
+}
+.app-hero-eyebrow{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.14em;color:var(–gold);font-weight:600;margin-bottom:10px}
+.app-hero-title{font-family:‘Playfair Display’,serif;font-size:clamp(1.8rem,5vw,2.4rem);color:var(–cream);margin-bottom:8px}
+.app-hero-sub{font-size:0.82rem;color:var(–cream-dim)}
+
 /* ── CONTENT AREA ── */
 .screen-body{flex:1;padding:32px 24px 80px;max-width:600px;margin:0 auto;width:100%}
 
@@ -56,23 +66,23 @@ background:var(–bg);position:sticky;top:0;z-index:50;
 .field{margin-bottom:20px}
 .field-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;font-weight:600;color:var(–gold);margin-bottom:8px;display:block}
 .field-input{
-width:100%;background:var(–card);border:1px solid var(–border);
-color:var(–cream);font-family:‘DM Sans’,sans-serif;font-size:0.95rem;
+width:100%;background:#161410;border:1px solid rgba(184,146,42,0.2);
+color:#F4EFE0;font-family:‘DM Sans’,sans-serif;font-size:0.95rem;
 padding:14px 16px;border-radius:4px;outline:none;
-transition:border-color .2s;
+transition:border-color .2s;-webkit-appearance:none;
 }
-.field-input:focus{border-color:var(–gold)}
-.field-input::placeholder{color:rgba(184,146,42,0.25)}
+.field-input:focus{border-color:#B8922A}
+.field-input::placeholder{color:rgba(184,146,42,0.3)}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
 /* ── BUTTONS ── */
 .btn-primary{
-width:100%;background:var(–gold);color:#0a0908;
+width:100%;background:#B8922A;color:#0a0908;
 font-family:‘DM Sans’,sans-serif;font-size:0.9rem;font-weight:700;
 letter-spacing:0.04em;padding:16px;border:none;border-radius:4px;
 cursor:pointer;transition:all .2s;margin-top:8px;
 }
-.btn-primary:hover{background:var(–gold-lt)}
+.btn-primary:hover{background:#d4a84b}
 .btn-primary:disabled{opacity:0.4;cursor:not-allowed}
 .btn-secondary{
 width:100%;background:transparent;color:var(–cream-dim);
@@ -126,12 +136,12 @@ white-space:pre-wrap;
 }
 .transcript-box.empty{color:var(–cream-dim);font-style:italic}
 .transcript-edit{
-width:100%;background:var(–card);border:1px solid var(–border);
-color:var(–cream);font-family:‘DM Sans’,sans-serif;font-size:0.88rem;
+width:100%;background:#161410;border:1px solid rgba(184,146,42,0.2);
+color:#F4EFE0;font-family:‘DM Sans’,sans-serif;font-size:0.88rem;
 padding:14px;border-radius:4px;outline:none;resize:vertical;
-min-height:120px;line-height:1.7;transition:border-color .2s;
+min-height:120px;line-height:1.7;transition:border-color .2s;-webkit-appearance:none;
 }
-.transcript-edit:focus{border-color:var(–gold)}
+.transcript-edit:focus{border-color:#B8922A}
 
 /* ── REVIEW CARDS ── */
 .review-section{margin-bottom:24px}
@@ -241,6 +251,11 @@ padding:14px 16px;display:none;align-items:center;gap:12px;margin-bottom:16px;
   <div class="app-header">
     <div class="app-logo">M&amp;P <span>//</span> FIELD ASSESSMENT</div>
     <button class="btn-settings" onclick="openSettings()" title="Settings">⚙</button>
+  </div>
+  <div class="app-hero">
+    <div class="app-hero-eyebrow">Meat &amp; Potatoes Carpentry LLC</div>
+    <div class="app-hero-title">Field Assessment</div>
+    <div class="app-hero-sub">Voice-driven job scope &amp; customer assessment tool</div>
   </div>
   <div class="screen-body">
     <div class="steps">
