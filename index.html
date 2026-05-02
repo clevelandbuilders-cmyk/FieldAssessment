@@ -187,11 +187,11 @@ white-space:nowrap;transition:all .2s;flex-shrink:0;
 
 /* ── SETTINGS MODAL ── */
 .modal-overlay{
-display:flex;position:fixed;inset:0;background:rgba(0,0,0,0.85);
-z-index:9000;align-items:center;justify-content:center;padding:20px;
-opacity:0;pointer-events:none;transition:opacity .2s;
+position:fixed;inset:0;background:rgba(0,0,0,0.88);
+z-index:9000;padding:20px;
+display:none;
 }
-.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-inner{display:flex;align-items:center;justify-content:center;min-height:100%;}
 .modal{background:#111009;border:1px solid rgba(184,146,42,0.2);border-radius:8px;width:100%;max-width:480px;padding:28px}
 .modal-title{font-family:‘Playfair Display’,serif;font-size:1.2rem;color:var(–cream);margin-bottom:4px}
 .modal-sub{font-size:0.78rem;color:var(–cream-dim);margin-bottom:24px}
@@ -217,7 +217,7 @@ padding:14px 16px;display:none;align-items:center;gap:12px;margin-bottom:16px;
 <!-- SETTINGS MODAL -->
 
 <div class="modal-overlay" id="settings-modal">
-  <div class="modal">
+  <div class="modal-inner"><div class="modal">
     <button class="modal-close" onclick="closeSettings()">✕</button>
     <div class="modal-title">Settings</div>
     <div class="modal-sub">Stored locally on this device only.</div>
@@ -239,7 +239,7 @@ padding:14px 16px;display:none;align-items:center;gap:12px;margin-bottom:16px;
     </div>
     <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
     <span class="saved-badge" id="saved-badge">✓ Saved</span>
-  </div>
+  </div></div>
 </div>
 
 <!-- ══════════════════════════════════════════ -->
@@ -454,10 +454,10 @@ function openSettings() {
   document.getElementById('s-github').value = localStorage.getItem('mp_github') || '';
   document.getElementById('s-repo').value = localStorage.getItem('mp_repo') || 'clevelandbuilders-cmyk/Assessments';
   document.getElementById('s-pin').value = localStorage.getItem('mp_pin') || '';
-  document.getElementById('settings-modal').classList.add('open');
+  document.getElementById('settings-modal').style.display = 'block';
 }
 function closeSettings() {
-  document.getElementById('settings-modal').classList.remove('open');
+  document.getElementById('settings-modal').style.display = 'none';
 }
 function saveSettings() {
   localStorage.setItem('mp_anthropic', document.getElementById('s-anthropic').value.trim());
