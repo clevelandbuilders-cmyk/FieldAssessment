@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M&P // Field Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0908;
+  --bg2:#111009;
+  --gold:#B8922A;
+  --gold-lt:#d4a84b;
+  --gold-dim:rgba(184,146,42,0.15);
+  --cream:#F4EFE0;
+  --cream-dim:#9a9080;
+  --card:#161410;
+  --border:rgba(184,146,42,0.2);
+  --border-hi:rgba(184,146,42,0.5);
+  --red:#c0392b;
+  --green:#27ae60;
+}
+html,body{height:100%;background:var(--bg);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+
+/* ── HEADER ── */
+.app-header{
+display:flex;align-items:center;justify-content:space-between;
+padding:16px 24px;border-bottom:1px solid var(–border);
+background:var(–bg);position:sticky;top:0;z-index:50;
+}
+.app-logo{font-family:‘DM Mono’,monospace;font-size:0.75rem;color:var(–gold);letter-spacing:0.12em}
+.app-logo span{color:var(–cream-dim)}
+.btn-settings{background:none;border:1px solid var(–border);color:var(–cream-dim);width:36px;height:36px;border-radius:4px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.btn-settings:hover{border-color:var(–gold);color:var(–gold)}
+
+/* ── CONTENT AREA ── */
+.screen-body{flex:1;padding:32px 24px 80px;max-width:600px;margin:0 auto;width:100%}
+
+/* ── STEP INDICATOR ── */
+.steps{display:flex;gap:8px;margin-bottom:32px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(–border);transition:all .3s}
+.step-dot.active{background:var(–gold);width:24px;border-radius:4px}
+.step-dot.done{background:var(–gold-dim);border:1px solid var(–gold)}
+
+/* ── HEADINGS ── */
+.screen-title{font-family:‘Playfair Display’,serif;font-size:1.8rem;color:var(–cream);margin-bottom:6px}
+.screen-sub{font-size:0.85rem;color:var(–cream-dim);margin-bottom:32px}
+
+/* ── FORM FIELDS ── */
+.field{margin-bottom:20px}
+.field-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;font-weight:600;color:var(–gold);margin-bottom:8px;display:block}
+.field-input{
+width:100%;background:var(–card);border:1px solid var(–border);
+color:var(–cream);font-family:‘DM Sans’,sans-serif;font-size:0.95rem;
+padding:14px 16px;border-radius:4px;outline:none;
+transition:border-color .2s;
+}
+.field-input:focus{border-color:var(–gold)}
+.field-input::placeholder{color:rgba(184,146,42,0.25)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── BUTTONS ── */
+.btn-primary{
+width:100%;background:var(–gold);color:#0a0908;
+font-family:‘DM Sans’,sans-serif;font-size:0.9rem;font-weight:700;
+letter-spacing:0.04em;padding:16px;border:none;border-radius:4px;
+cursor:pointer;transition:all .2s;margin-top:8px;
+}
+.btn-primary:hover{background:var(–gold-lt)}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed}
+.btn-secondary{
+width:100%;background:transparent;color:var(–cream-dim);
+font-family:‘DM Sans’,sans-serif;font-size:0.85rem;font-weight:500;
+padding:14px;border:1px solid var(–border);border-radius:4px;
+cursor:pointer;transition:all .2s;margin-top:8px;
+}
+.btn-secondary:hover{border-color:var(–gold);color:var(–gold)}
+.btn-back{
+background:none;border:none;color:var(–cream-dim);font-family:‘DM Sans’,sans-serif;
+font-size:0.82rem;cursor:pointer;padding:0;margin-bottom:24px;
+display:flex;align-items:center;gap:6px;
+}
+.btn-back:hover{color:var(–gold)}
+
+/* ── VOICE RECORDER ── */
+.voice-zone{
+border:2px solid var(–border);border-radius:8px;
+padding:40px 24px;text-align:center;margin-bottom:24px;
+transition:border-color .3s,background .3s;
+position:relative;overflow:hidden;
+}
+.voice-zone.recording{border-color:var(–red);background:rgba(192,57,43,0.05)}
+.voice-zone.has-transcript{border-color:var(–gold-dim)}
+.voice-btn{
+width:72px;height:72px;border-radius:50%;border:none;cursor:pointer;
+background:var(–gold);color:#0a0908;font-size:1.6rem;
+display:flex;align-items:center;justify-content:center;
+margin:0 auto 16px;transition:all .2s;
+box-shadow:0 0 0 0 rgba(184,146,42,0.4);
+}
+.voice-btn.recording{
+background:var(–red);
+animation:pulse 1.5s infinite;
+}
+@keyframes pulse{
+0%{box-shadow:0 0 0 0 rgba(192,57,43,0.5)}
+70%{box-shadow:0 0 0 20px rgba(192,57,43,0)}
+100%{box-shadow:0 0 0 0 rgba(192,57,43,0)}
+}
+.voice-status{font-size:0.8rem;color:var(–cream-dim);margin-bottom:8px}
+.voice-timer{font-family:‘DM Mono’,monospace;font-size:1.2rem;color:var(–gold);display:none}
+.voice-timer.active{display:block}
+
+/* ── TRANSCRIPT ── */
+.transcript-box{
+background:var(–card);border:1px solid var(–border);border-radius:4px;
+padding:16px;margin-bottom:16px;min-height:80px;
+font-size:0.88rem;color:var(–cream);line-height:1.7;
+white-space:pre-wrap;
+}
+.transcript-box.empty{color:var(–cream-dim);font-style:italic}
+.transcript-edit{
+width:100%;background:var(–card);border:1px solid var(–border);
+color:var(–cream);font-family:‘DM Sans’,sans-serif;font-size:0.88rem;
+padding:14px;border-radius:4px;outline:none;resize:vertical;
+min-height:120px;line-height:1.7;transition:border-color .2s;
+}
+.transcript-edit:focus{border-color:var(–gold)}
+
+/* ── REVIEW CARDS ── */
+.review-section{margin-bottom:24px}
+.review-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;font-weight:600;color:var(–gold);margin-bottom:10px}
+.review-card{background:var(–card);border:1px solid var(–border);border-radius:4px;padding:16px 18px;margin-bottom:8px}
+.review-item{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.review-item:last-child{border-bottom:none;padding-bottom:0}
+.review-key{font-size:0.78rem;color:var(–cream-dim);flex-shrink:0}
+.review-val{font-size:0.85rem;color:var(–cream);text-align:right;font-weight:500}
+.scope-chip{
+display:inline-block;background:var(–gold-dim);border:1px solid var(–border);
+color:var(–gold-lt);font-size:0.72rem;padding:4px 10px;border-radius:12px;
+margin:3px 3px 3px 0;
+}
+
+/* ── PROGRESS / GENERATING ── */
+.generating-wrap{text-align:center;padding:40px 0}
+.gen-spinner{
+width:48px;height:48px;border:2px solid var(–border);border-top-color:var(–gold);
+border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 24px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gen-status{font-size:0.9rem;color:var(–cream-dim);margin-bottom:8px}
+.gen-step{font-family:‘DM Mono’,monospace;font-size:0.75rem;color:var(–gold)}
+
+/* ── RESULT ── */
+.result-wrap{text-align:center;padding:20px 0}
+.result-icon{font-size:3rem;margin-bottom:16px}
+.result-title{font-family:‘Playfair Display’,serif;font-size:1.4rem;color:var(–cream);margin-bottom:8px}
+.result-sub{font-size:0.85rem;color:var(–cream-dim);margin-bottom:32px}
+.link-box{
+background:var(–card);border:1px solid var(–border-hi);border-radius:4px;
+padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;
+}
+.link-url{font-family:‘DM Mono’,monospace;font-size:0.78rem;color:var(–gold);flex:1;word-break:break-all}
+.btn-copy{
+background:var(–gold);color:#0a0908;border:none;border-radius:3px;
+font-size:0.72rem;font-weight:700;padding:8px 14px;cursor:pointer;
+white-space:nowrap;transition:all .2s;flex-shrink:0;
+}
+.btn-copy:hover{background:var(–gold-lt)}
+.btn-copy.copied{background:var(–green);color:white}
+
+/* ── SETTINGS MODAL ── */
+.modal-overlay{
+display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);
+z-index:200;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal{background:var(–bg2);border:1px solid var(–border);border-radius:8px;width:100%;max-width:480px;padding:28px}
+.modal-title{font-family:‘Playfair Display’,serif;font-size:1.2rem;color:var(–cream);margin-bottom:4px}
+.modal-sub{font-size:0.78rem;color:var(–cream-dim);margin-bottom:24px}
+.modal-close{float:right;background:none;border:none;color:var(–cream-dim);font-size:1.2rem;cursor:pointer;margin-top:-4px}
+.saved-badge{display:inline-block;background:rgba(39,174,96,0.15);color:var(–green);font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:10px;margin-left:8px;display:none}
+
+/* ── PROCESSING INDICATOR ── */
+.ai-thinking{
+background:var(–card);border:1px solid var(–border);border-radius:4px;
+padding:14px 16px;display:none;align-items:center;gap:12px;margin-bottom:16px;
+}
+.ai-thinking.active{display:flex}
+.ai-dot{width:8px;height:8px;border-radius:50%;background:var(–gold);animation:blink 1.2s infinite}
+.ai-dot:nth-child(2){animation-delay:.2s}
+.ai-dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:0.2}50%{opacity:1}}
+.ai-text{font-size:0.82rem;color:var(–cream-dim)}
+</style>
+
+</head>
+<body>
+
+<!-- SETTINGS MODAL -->
+
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeSettings()">✕</button>
+    <div class="modal-title">Settings</div>
+    <div class="modal-sub">Stored locally on this device only.</div>
+    <div class="field">
+      <label class="field-label">Anthropic API Key</label>
+      <input type="password" class="field-input" id="s-anthropic" placeholder="sk-ant-...">
+    </div>
+    <div class="field">
+      <label class="field-label">GitHub Personal Access Token</label>
+      <input type="password" class="field-input" id="s-github" placeholder="ghp_...">
+    </div>
+    <div class="field">
+      <label class="field-label">GitHub Repo (owner/repo)</label>
+      <input type="text" class="field-input" id="s-repo" value="clevelandbuilders-cmyk/Assessments">
+    </div>
+    <div class="field">
+      <label class="field-label">Default Customer PIN <span style="color:var(--cream-dim);font-weight:400">(4 digits, included with each assessment)</span></label>
+      <input type="text" class="field-input" id="s-pin" placeholder="e.g. 2847" maxlength="8" inputmode="numeric">
+    </div>
+    <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+    <span class="saved-badge" id="saved-badge">✓ Saved</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+
+<!-- SCREEN 1: CUSTOMER INFO -->
+
+<!-- ══════════════════════════════════════════ -->
+
+<div class="screen active" id="screen-info">
+  <div class="app-header">
+    <div class="app-logo">M&amp;P <span>//</span> FIELD ASSESSMENT</div>
+    <button class="btn-settings" onclick="openSettings()" title="Settings">⚙</button>
+  </div>
+  <div class="screen-body">
+    <div class="steps">
+      <div class="step-dot active" id="dot-0"></div>
+      <div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+    </div>
+    <div class="screen-title">Customer Info</div>
+    <div class="screen-sub">Enter customer details to get started.</div>
+
+```
+<div class="field-row">
+  <div class="field">
+    <label class="field-label">First Name</label>
+    <input type="text" class="field-input" id="first-name" placeholder="Travis">
+  </div>
+  <div class="field">
+    <label class="field-label">Last Name</label>
+    <input type="text" class="field-input" id="last-name" placeholder="Boechler">
+  </div>
+</div>
+<div class="field">
+  <label class="field-label">Street Address</label>
+  <input type="text" class="field-input" id="street" placeholder="3465 S New York Ave">
+</div>
+<div class="field-row">
+  <div class="field">
+    <label class="field-label">City</label>
+    <input type="text" class="field-input" id="city" placeholder="Milwaukee">
+  </div>
+  <div class="field">
+    <label class="field-label">State</label>
+    <input type="text" class="field-input" id="state" placeholder="WI" maxlength="2">
+  </div>
+</div>
+<div class="field">
+  <label class="field-label">Year Built <span style="color:var(--cream-dim);font-weight:400">(optional)</span></label>
+  <input type="text" class="field-input" id="year-built" placeholder="Unknown">
+</div>
+<button class="btn-primary" onclick="goToVoice()">Next — Record Scope →</button>
+```
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+
+<!-- SCREEN 2: VOICE NOTES -->
+
+<!-- ══════════════════════════════════════════ -->
+
+<div class="screen" id="screen-voice">
+  <div class="app-header">
+    <div class="app-logo">M&amp;P <span>//</span> FIELD ASSESSMENT</div>
+    <button class="btn-settings" onclick="openSettings()" title="Settings">⚙</button>
+  </div>
+  <div class="screen-body">
+    <div class="steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+    <button class="btn-back" onclick="goTo('screen-info')">← Back</button>
+    <div class="screen-title">Voice Notes</div>
+    <div class="screen-sub">Describe the scope of work. Hit record and speak naturally.</div>
+
+```
+<div class="voice-zone" id="voice-zone">
+  <button class="voice-btn" id="voice-btn" onclick="toggleRecording()">🎙</button>
+  <div class="voice-status" id="voice-status">Tap to record</div>
+  <div class="voice-timer" id="voice-timer">0:00</div>
+</div>
+
+<div class="ai-thinking" id="ai-thinking">
+  <div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
+  <div class="ai-text">AI is processing your notes...</div>
+</div>
+
+<div class="field">
+  <label class="field-label">Transcript — edit if needed</label>
+  <textarea class="transcript-edit" id="transcript-edit" placeholder="Your voice notes will appear here after recording. You can also type directly."></textarea>
+</div>
+
+<button class="btn-primary" id="btn-process" onclick="processNotes()" disabled>Process Notes →</button>
+<button class="btn-secondary" onclick="goTo('screen-info')">← Back</button>
+```
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+
+<!-- SCREEN 3: REVIEW -->
+
+<!-- ══════════════════════════════════════════ -->
+
+<div class="screen" id="screen-review">
+  <div class="app-header">
+    <div class="app-logo">M&amp;P <span>//</span> FIELD ASSESSMENT</div>
+    <button class="btn-settings" onclick="openSettings()" title="Settings">⚙</button>
+  </div>
+  <div class="screen-body">
+    <div class="steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+    </div>
+    <button class="btn-back" onclick="goTo('screen-voice')">← Back</button>
+    <div class="screen-title">Review</div>
+    <div class="screen-sub">Confirm everything looks right before generating.</div>
+
+```
+<div id="review-content"></div>
+
+<button class="btn-primary" onclick="generate()">Generate &amp; Push to GitHub →</button>
+<button class="btn-secondary" onclick="goTo('screen-voice')">← Edit Notes</button>
+```
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+
+<!-- SCREEN 4: GENERATING / RESULT -->
+
+<!-- ══════════════════════════════════════════ -->
+
+<div class="screen" id="screen-result">
+  <div class="app-header">
+    <div class="app-logo">M&amp;P <span>//</span> FIELD ASSESSMENT</div>
+    <button class="btn-settings" onclick="openSettings()" title="Settings">⚙</button>
+  </div>
+  <div class="screen-body">
+    <div class="steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot active" id="dot-final"></div>
+    </div>
+
+```
+<!-- Generating state -->
+<div class="generating-wrap" id="gen-wrap">
+  <div class="gen-spinner"></div>
+  <div class="gen-status" id="gen-status">Building assessment...</div>
+  <div class="gen-step" id="gen-step"></div>
+</div>
+
+<!-- Result state -->
+<div id="result-wrap" style="display:none">
+  <div class="result-wrap">
+    <div class="result-icon">✅</div>
+    <div class="result-title">Assessment Ready</div>
+    <div class="result-sub" id="result-name"></div>
+    <div class="link-box">
+      <div class="link-url" id="result-link"></div>
+      <button class="btn-copy" id="copy-btn" onclick="copyLink()">Copy</button>
+    </div>
+    <button class="btn-secondary" onclick="downloadDocx()">⬇ Download Contractor Doc</button>
+    <button class="btn-primary" style="margin-top:16px" onclick="startNew()">New Assessment</button>
+  </div>
+</div>
+
+<!-- Error state -->
+<div id="error-wrap" style="display:none">
+  <div class="result-wrap">
+    <div class="result-icon">⚠️</div>
+    <div class="result-title">Something went wrong</div>
+    <div class="result-sub" id="error-msg"></div>
+    <button class="btn-primary" onclick="goTo('screen-review')">← Try Again</button>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────
+const state = {
+  customer: {},
+  transcript: '',
+  parsed: null,
+  customerHTML: '',
+  contractorData: null,
+  githubURL: ''
+};
+
+// ── SETTINGS ──────────────────────────────────
+function openSettings() {
+  document.getElementById('s-anthropic').value = localStorage.getItem('mp_anthropic') || '';
+  document.getElementById('s-github').value = localStorage.getItem('mp_github') || '';
+  document.getElementById('s-repo').value = localStorage.getItem('mp_repo') || 'clevelandbuilders-cmyk/Assessments';
+  document.getElementById('s-pin').value = localStorage.getItem('mp_pin') || '';
+  document.getElementById('settings-modal').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+}
+function saveSettings() {
+  localStorage.setItem('mp_anthropic', document.getElementById('s-anthropic').value.trim());
+  localStorage.setItem('mp_github', document.getElementById('s-github').value.trim());
+  localStorage.setItem('mp_repo', document.getElementById('s-repo').value.trim());
+  localStorage.setItem('mp_pin', document.getElementById('s-pin').value.trim());
+  const badge = document.getElementById('saved-badge');
+  badge.style.display = 'inline-block';
+  setTimeout(() => badge.style.display = 'none', 2000);
+}
+
+// ── NAVIGATION ────────────────────────────────
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function goToVoice() {
+  const fn = document.getElementById('first-name').value.trim();
+  const ln = document.getElementById('last-name').value.trim();
+  const st = document.getElementById('street').value.trim();
+  const city = document.getElementById('city').value.trim();
+  if (!fn || !ln || !st || !city) {
+    alert('Please fill in customer name, street, and city.');
+    return;
+  }
+  state.customer = {
+    firstName: fn,
+    lastName: ln,
+    street: st,
+    city: city,
+    stateAbbr: document.getElementById('state').value.trim() || 'WI',
+    yearBuilt: document.getElementById('year-built').value.trim() || 'Unknown'
+  };
+  goTo('screen-voice');
+}
+
+// ── VOICE RECORDING ───────────────────────────
+let recognition = null;
+let recording = false;
+let timerInterval = null;
+let seconds = 0;
+let fullTranscript = '';
+
+function toggleRecording() {
+  if (!recording) startRecording();
+  else stopRecording();
+}
+
+function startRecording() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert('Speech recognition not supported in this browser. Use Safari on iOS or Chrome on desktop.');
+    return;
+  }
+  fullTranscript = '';
+  recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  recognition.onresult = (e) => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) fullTranscript += e.results[i][0].transcript + ' ';
+      else interim = e.results[i][0].transcript;
+    }
+    document.getElementById('transcript-edit').value = fullTranscript + interim;
+  };
+
+  recognition.onend = () => { if (recording) recognition.start(); };
+  recognition.start();
+
+  recording = true;
+  seconds = 0;
+  document.getElementById('voice-btn').classList.add('recording');
+  document.getElementById('voice-btn').textContent = '⏹';
+  document.getElementById('voice-zone').classList.add('recording');
+  document.getElementById('voice-status').textContent = 'Recording...';
+  document.getElementById('voice-timer').classList.add('active');
+
+  timerInterval = setInterval(() => {
+    seconds++;
+    const m = Math.floor(seconds/60);
+    const s = seconds % 60;
+    document.getElementById('voice-timer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  }, 1000);
+}
+
+function stopRecording() {
+  recording = false;
+  if (recognition) { recognition.onend = null; recognition.stop(); }
+  clearInterval(timerInterval);
+  document.getElementById('voice-btn').classList.remove('recording');
+  document.getElementById('voice-btn').textContent = '🎙';
+  document.getElementById('voice-zone').classList.remove('recording');
+  document.getElementById('voice-zone').classList.add('has-transcript');
+  document.getElementById('voice-status').textContent = 'Tap to re-record';
+  document.getElementById('voice-timer').classList.remove('active');
+  const t = document.getElementById('transcript-edit').value.trim();
+  if (t) document.getElementById('btn-process').disabled = false;
+}
+
+// Watch textarea for manual typing
+document.getElementById('transcript-edit').addEventListener('input', function() {
+  document.getElementById('btn-process').disabled = this.value.trim().length === 0;
+});
+
+// ── PROCESS NOTES WITH AI ─────────────────────
+async function processNotes() {
+  const transcript = document.getElementById('transcript-edit').value.trim();
+  if (!transcript) return;
+  const apiKey = localStorage.getItem('mp_anthropic');
+  if (!apiKey) { openSettings(); alert('Add your Anthropic API key in Settings first.'); return; }
+
+  state.transcript = transcript;
+  document.getElementById('btn-process').disabled = true;
+  document.getElementById('ai-thinking').classList.add('active');
+
+  const prompt = `You are a field assessment AI for Meat & Potatoes Carpentry LLC. 
+Parse these contractor field notes into structured JSON for a customer assessment.
+
+Customer: ${state.customer.firstName} ${state.customer.lastName}
+Address: ${state.customer.street}, ${state.customer.city}, ${state.customer.stateAbbr}
+
+Field notes: "${transcript}"
+
+Return ONLY valid JSON with this exact structure:
+{
+  "projectArea": "brief description of where work is",
+  "scopeItems": [
+    {"num": 1, "title": "scope item title", "detail": "description with quantities/specs"}
+  ],
+  "materials": [
+    {"name": "material name", "spec": "spec/size", "qty": "quantity", "unit": "unit", "note": "optional note"}
+  ],
+  "followUp": [
+    {"item": "follow up item", "priority": "High|Medium|Low"}
+  ],
+  "fieldNotes": "paragraph of key notes, caveats, scope boundaries, customer responsibilities",
+  "projectType": "brief type label e.g. LP SmartSide Siding, Window Replacement, etc."
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key': apiKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content[0].text.replace(/```json|```/g,'').trim();
+    state.parsed = JSON.parse(text);
+    document.getElementById('ai-thinking').classList.remove('active');
+    document.getElementById('btn-process').disabled = false;
+    buildReviewScreen();
+    goTo('screen-review');
+  } catch(err) {
+    document.getElementById('ai-thinking').classList.remove('active');
+    document.getElementById('btn-process').disabled = false;
+    alert('Error processing notes: ' + err.message);
+  }
+}
+
+// ── REVIEW SCREEN ─────────────────────────────
+function buildReviewScreen() {
+  const c = state.customer;
+  const p = state.parsed;
+  const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+  let html = `
+    <div class="review-section">
+      <div class="review-label">Customer</div>
+      <div class="review-card">
+        <div class="review-item"><span class="review-key">Name</span><span class="review-val">${c.firstName} ${c.lastName}</span></div>
+        <div class="review-item"><span class="review-key">Address</span><span class="review-val">${c.street}, ${c.city}, ${c.stateAbbr}</span></div>
+        <div class="review-item"><span class="review-key">Year Built</span><span class="review-val">${c.yearBuilt}</span></div>
+        <div class="review-item"><span class="review-key">Date</span><span class="review-val">${today}</span></div>
+        <div class="review-item"><span class="review-key">Project Area</span><span class="review-val">${p.projectArea}</span></div>
+      </div>
+    </div>
+    <div class="review-section">
+      <div class="review-label">Scope of Work (${p.scopeItems.length} items)</div>
+      <div class="review-card">`;
+  p.scopeItems.forEach(s => {
+    html += `<div class="review-item"><span class="review-key">${s.num}.</span><span class="review-val">${s.title}</span></div>`;
+  });
+  html += `</div></div>
+    <div class="review-section">
+      <div class="review-label">Materials</div>
+      <div class="review-card">`;
+  p.materials.forEach(m => {
+    html += `<div class="review-item"><span class="review-key">${m.name}</span><span class="review-val">${m.qty} ${m.unit||''}</span></div>`;
+  });
+  html += `</div></div>`;
+  document.getElementById('review-content').innerHTML = html;
+}
+
+// ── GENERATE ──────────────────────────────────
+async function generate() {
+  goTo('screen-result');
+  document.getElementById('gen-wrap').style.display = 'block';
+  document.getElementById('result-wrap').style.display = 'none';
+  document.getElementById('error-wrap').style.display = 'none';
+
+  const setStatus = (s, sub='') => {
+    document.getElementById('gen-status').textContent = s;
+    document.getElementById('gen-step').textContent = sub;
+  };
+
+  try {
+    setStatus('Building customer HTML...', 'Generating assessment page');
+    buildCustomerHTML();
+
+    setStatus('Building contractor document...', 'Preparing internal notes');
+    buildContractorData();
+
+    setStatus('Pushing to GitHub...', `Assessments/${state.customer.lastName}/index.html`);
+    await pushToGitHub();
+
+    document.getElementById('gen-wrap').style.display = 'none';
+    document.getElementById('result-wrap').style.display = 'block';
+    document.getElementById('dot-final').classList.add('done');
+    document.getElementById('result-name').textContent = `${state.customer.firstName} ${state.customer.lastName} — ${state.customer.street}`;
+    const repo = localStorage.getItem('mp_repo') || 'clevelandbuilders-cmyk/Assessments';
+    const owner = repo.split('/')[0];
+    const repoName = repo.split('/')[1];
+    state.githubURL = `https://${owner}.github.io/${repoName}/${state.customer.lastName}/`;
+    document.getElementById('result-link').textContent = state.githubURL;
+
+  } catch(err) {
+    document.getElementById('gen-wrap').style.display = 'none';
+    document.getElementById('error-wrap').style.display = 'block';
+    document.getElementById('error-msg').textContent = err.message;
+  }
+}
+
+// ── BUILD CUSTOMER HTML ───────────────────────
+function buildCustomerHTML() {
+  const c = state.customer;
+  const p = state.parsed;
+  const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+  const scopeHTML = p.scopeItems.map(s => `
+    <div class="scope-item">
+      <div class="scope-num">${s.num}</div>
+      <div><div class="scope-title">${s.title}</div><div class="scope-detail">${s.detail}</div></div>
+    </div>`).join('');
+
+  const matHTML = p.materials.map(m => `
+    <tr>
+      <td>${m.name}${m.spec ? `<br><span class="mat-note">${m.spec}</span>` : ''}</td>
+      <td><span class="mat-qty">${m.qty}</span>${m.unit ? `<br><span class="mat-note">${m.unit}</span>` : ''}</td>
+      <td>${m.note ? `<span class="mat-flag">${m.note}</span>` : '—'}</td>
+    </tr>`).join('');
+
+  const notesHTML = p.fieldNotes;
+
+  const pin = localStorage.getItem('mp_pin') || '1234';
+  state.customerHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Assessment — ${c.lastName} Residence</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#111009;--gold:#B8922A;--gold-lt:#d4a84b;--cream:#F4EFE0;--cream-dim:#b8ad97;--card:#1a1812;--border:rgba(184,146,42,0.22)}
+html{scroll-behavior:smooth}body{background:var(--bg);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.65}
+header{position:sticky;top:0;z-index:100;background:#0b0a07;border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.hd-name{font-family:'Playfair Display',serif;font-size:1rem;color:var(--gold)}.hd-sub{font-size:0.65rem;color:var(--cream-dim);text-transform:uppercase;letter-spacing:0.1em}
+.hd-badge{background:var(--gold);color:#0b0a07;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 12px;border-radius:2px}
+.hero{background:linear-gradient(160deg,#1c1a12 0%,#111009 60%);border-bottom:1px solid var(--border);padding:56px 24px 48px;text-align:center}
+.hero-eyebrow{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--gold);font-weight:500;margin-bottom:14px}
+.hero-name{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,2.8rem);color:var(--cream);margin-bottom:8px}
+.hero-addr{font-size:0.95rem;color:var(--cream-dim);margin-bottom:28px}
+.hero-chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.chip{background:rgba(184,146,42,0.12);border:1px solid var(--border);color:var(--gold-lt);font-size:0.75rem;font-weight:500;padding:6px 16px;border-radius:20px}
+nav{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);background:#0e0c09;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+.nav-btn{flex:0 0 auto;padding:14px 20px;font-size:0.8rem;font-weight:500;color:var(--cream-dim);text-transform:uppercase;letter-spacing:0.07em;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .2s}
+.nav-btn.active,.nav-btn:hover{color:var(--gold);border-bottom-color:var(--gold)}
+.page{display:none;padding:32px 20px 60px;max-width:780px;margin:0 auto}.page.active{display:block}
+.sec-title{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--cream);margin-bottom:6px}
+.sec-line{width:40px;height:2px;background:var(--gold);margin-bottom:24px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px}
+@media(max-width:480px){.info-grid{grid-template-columns:1fr}}
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px 18px}
+.info-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);font-weight:600;margin-bottom:4px}
+.info-val{font-size:0.95rem;color:var(--cream);font-weight:500}
+.scope-list{display:flex;flex-direction:column;gap:10px}
+.scope-item{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start}
+.scope-num{background:var(--gold);color:#0b0a07;font-weight:700;font-size:0.75rem;min-width:26px;height:26px;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.scope-title{font-weight:600;font-size:0.95rem;color:var(--cream);margin-bottom:3px}
+.scope-detail{font-size:0.82rem;color:var(--cream-dim)}
+.mat-table{width:100%;border-collapse:collapse}
+.mat-table th{background:#1c1a12;color:var(--gold);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+.mat-table td{padding:11px 14px;font-size:0.88rem;color:var(--cream);border-bottom:1px solid rgba(255,255,255,0.05)}
+.mat-table tr:last-child td{border-bottom:none}
+.mat-qty{font-weight:600;color:var(--gold-lt)}.mat-note{font-size:0.78rem;color:var(--cream-dim)}
+.mat-flag{display:inline-block;background:rgba(184,146,42,0.15);color:var(--gold-lt);font-size:0.68rem;font-weight:600;padding:2px 8px;border-radius:10px}
+.callout{background:rgba(184,146,42,0.07);border:1px solid rgba(184,146,42,0.3);border-radius:4px;padding:18px 20px;margin-top:20px}
+.callout-head{font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold);margin-bottom:8px}
+.callout p{font-size:0.88rem;color:var(--cream-dim);line-height:1.7}
+footer{text-align:center;padding:32px 20px;border-top:1px solid var(--border);font-size:0.78rem;color:var(--cream-dim);line-height:1.9}
+footer a{color:var(--gold);text-decoration:none}
+</style>
+
+</head>
+<body>
+<!-- PIN GATE -->
+<div id="pin-gate" style="display:flex;position:fixed;inset:0;z-index:9999;background:#0a0908;align-items:center;justify-content:center;flex-direction:column;padding:24px">
+  <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:#F4EFE0;margin-bottom:8px;text-align:center">Meat &amp; Potatoes Carpentry</div>
+  <div style="font-size:0.75rem;color:#b8ad97;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:32px">Field Assessment — Secure Access</div>
+  <input id="pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="Enter PIN"
+    style="background:#161410;border:1px solid rgba(184,146,42,0.3);color:#F4EFE0;font-size:1.2rem;text-align:center;padding:14px 24px;border-radius:4px;outline:none;width:200px;letter-spacing:0.2em;font-family:'DM Mono',monospace;margin-bottom:12px"
+    onkeydown="if(event.key==='Enter')checkPin()">
+  <button onclick="checkPin()"
+    style="background:#B8922A;color:#0a0908;border:none;border-radius:4px;padding:12px 32px;font-weight:700;font-size:0.9rem;cursor:pointer;width:200px">
+    Unlock
+  </button>
+  <div id="pin-error" style="color:#c0392b;font-size:0.8rem;margin-top:12px;display:none">Incorrect PIN. Try again.</div>
+</div>
+<div id="main-content" style="display:none">
+<header>
+  <div><div class="hd-name">Meat &amp; Potatoes Carpentry</div><div class="hd-sub">Enhancing spaces, elevating homes</div></div>
+  <span class="hd-badge">Field Assessment</span>
+</header>
+<div class="hero">
+  <div class="hero-eyebrow">Pre-Quote Assessment</div>
+  <div class="hero-name">${c.lastName} Residence</div>
+  <div class="hero-addr">${c.street} &middot; ${c.city}, ${c.stateAbbr}</div>
+  <div class="hero-chips"><span class="chip">${p.projectType}</span><span class="chip">${p.projectArea}</span></div>
+</div>
+<nav>
+  <button class="nav-btn active" onclick="showPage('overview',this)">Overview</button>
+  <button class="nav-btn" onclick="showPage('scope',this)">Scope</button>
+  <button class="nav-btn" onclick="showPage('materials',this)">Materials</button>
+  <button class="nav-btn" onclick="showPage('notes',this)">Notes</button>
+</nav>
+<div class="page active" id="page-overview">
+  <div class="sec-title">Job Overview</div><div class="sec-line"></div>
+  <div class="info-grid">
+    <div class="info-card"><div class="info-label">Customer</div><div class="info-val">${c.firstName} ${c.lastName}</div></div>
+    <div class="info-card"><div class="info-label">Address</div><div class="info-val">${c.street}<br>${c.city}, ${c.stateAbbr}</div></div>
+    <div class="info-card"><div class="info-label">Assessment Date</div><div class="info-val">${today}</div></div>
+    <div class="info-card"><div class="info-label">Assessor</div><div class="info-val">Dan Cleveland<br>Meat &amp; Potatoes Carpentry LLC</div></div>
+    <div class="info-card"><div class="info-label">Year Built</div><div class="info-val">${c.yearBuilt}</div></div>
+    <div class="info-card"><div class="info-label">Project Area</div><div class="info-val">${p.projectArea}</div></div>
+  </div>
+</div>
+<div class="page" id="page-scope">
+  <div class="sec-title">Scope of Work</div><div class="sec-line"></div>
+  <div class="scope-list">${scopeHTML}</div>
+</div>
+<div class="page" id="page-materials">
+  <div class="sec-title">Material Takeoff</div><div class="sec-line"></div>
+  <table class="mat-table"><thead><tr><th>Material</th><th>Qty</th><th>Notes</th></tr></thead><tbody>${matHTML}</tbody></table>
+</div>
+<div class="page" id="page-notes">
+  <div class="sec-title">Field Notes</div><div class="sec-line"></div>
+  <div class="callout"><div class="callout-head">Assessment Notes</div><p>${notesHTML}</p></div>
+  ${p.followUp && p.followUp.length ? `<div class="callout" style="margin-top:16px"><div class="callout-head">Follow-Up Items</div>${p.followUp.map(f=>`<p style="margin-top:6px"><span style="color:var(--gold);font-weight:600">${f.priority}:</span> ${f.item}</p>`).join('')}</div>` : ''}
+</div>
+<footer>
+  <strong style="color:var(--cream)">Meat &amp; Potatoes Carpentry LLC</strong><br>
+  Waterford, WI &middot; <a href="http://meatandpotatoescarpentry.com">meatandpotatoescarpentry.com</a>
+</footer>
+</div><!-- /main-content -->
+<script>
+var PIN_CODE="${pin}";
+function checkPin(){var p=document.getElementById("pin-input").value.trim();if(p===PIN_CODE){document.getElementById("pin-gate").style.display="none";document.getElementById("main-content").style.display="block";}else{document.getElementById("pin-error").style.display="block";document.getElementById("pin-input").value="";}}
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
+}
+<\/script>
+</body></html>`;
+}
+
+// ── BUILD CONTRACTOR DATA ─────────────────────
+function buildContractorData() {
+const c = state.customer;
+const p = state.parsed;
+const today = new Date().toLocaleDateString(‘en-US’,{month:‘long’,day:‘numeric’,year:‘numeric’});
+state.contractorData = { customer: c, parsed: p, date: today, transcript: state.transcript };
+}
+
+// ── PUSH TO GITHUB ────────────────────────────
+async function pushToGitHub() {
+const token = localStorage.getItem(‘mp_github’);
+const repo = localStorage.getItem(‘mp_repo’) || ‘clevelandbuilders-cmyk/Assessments’;
+if (!token) throw new Error(‘GitHub token not set. Open Settings and add your PAT.’);
+
+const path = `${state.customer.lastName}/index.html`;
+const content = btoa(unescape(encodeURIComponent(state.customerHTML)));
+const apiURL = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+// Check if file exists (to get SHA for update)
+let sha = null;
+try {
+const check = await fetch(apiURL, {
+headers: {‘Authorization’: `token ${token}`, ‘Accept’: ‘application/vnd.github.v3+json’}
+});
+if (check.ok) {
+const existing = await check.json();
+sha = existing.sha;
+}
+} catch(e) {}
+
+const body = {
+message: `Assessment: ${state.customer.firstName} ${state.customer.lastName}`,
+content: content
+};
+if (sha) body.sha = sha;
+
+const res = await fetch(apiURL, {
+method: ‘PUT’,
+headers: {
+‘Authorization’: `token ${token}`,
+‘Accept’: ‘application/vnd.github.v3+json’,
+‘Content-Type’: ‘application/json’
+},
+body: JSON.stringify(body)
+});
+
+if (!res.ok) {
+const err = await res.json();
+throw new Error(`GitHub error: ${err.message}`);
+}
+}
+
+// ── COPY LINK ─────────────────────────────────
+function copyLink() {
+navigator.clipboard.writeText(state.githubURL).then(() => {
+const btn = document.getElementById(‘copy-btn’);
+btn.textContent = ‘✓ Copied’;
+btn.classList.add(‘copied’);
+setTimeout(() => { btn.textContent = ‘Copy’; btn.classList.remove(‘copied’); }, 2000);
+});
+}
+
+// ── DOWNLOAD CONTRACTOR DOC ───────────────────
+function downloadDocx() {
+const d = state.contractorData;
+const c = d.customer;
+const p = d.parsed;
+
+// Generate a clean contractor text summary as a downloadable file
+let text = `MEAT & POTATOES CARPENTRY LLC\nPRE-QUOTE FIELD ASSESSMENT — CONTRACTOR COPY\n${'='.repeat(50)}\n\n`;
+text += `CUSTOMER: ${c.firstName} ${c.lastName}\n`;
+text += `ADDRESS: ${c.street}, ${c.city}, ${c.stateAbbr}\n`;
+text += `YEAR BUILT: ${c.yearBuilt}\n`;
+text += `DATE: ${d.date}\n`;
+text += `ASSESSOR: Dan Cleveland\n\n`;
+text += `PROJECT AREA: ${p.projectArea}\n`;
+text += `PROJECT TYPE: ${p.projectType}\n\n`;
+text += `${'─'.repeat(40)}\nSCOPE OF WORK\n${'─'.repeat(40)}\n`;
+p.scopeItems.forEach(s => { text += `${s.num}. ${s.title}\n   ${s.detail}\n`; });
+text += `\n${'─'.repeat(40)}\nMATERIAL TAKEOFF\n${'─'.repeat(40)}\n`;
+p.materials.forEach(m => { text += `• ${m.name} (${m.spec||''}) — ${m.qty} ${m.unit||''} ${m.note?'['+m.note+']':''}\n`; });
+text += `\n${'─'.repeat(40)}\nFOLLOW-UP ITEMS\n${'─'.repeat(40)}\n`;
+p.followUp.forEach(f => { text += `[${f.priority}] ${f.item}\n`; });
+text += `\n${'─'.repeat(40)}\nFIELD NOTES\n${'─'.repeat(40)}\n${p.fieldNotes}\n\n`;
+text += `${'─'.repeat(40)}\nRAW VOICE TRANSCRIPT\n${'─'.repeat(40)}\n${d.transcript}\n`;
+
+const blob = new Blob([text], {type:‘text/plain’});
+const url = URL.createObjectURL(blob);
+const a = document.createElement(‘a’);
+a.href = url;
+a.download = `${c.lastName}_Assessment_Contractor.txt`;
+a.click();
+URL.revokeObjectURL(url);
+}
+
+// ── NEW ASSESSMENT ────────────────────────────
+function startNew() {
+// Clear fields
+[‘first-name’,‘last-name’,‘street’,‘city’,‘state’,‘year-built’].forEach(id => {
+document.getElementById(id).value = ‘’;
+});
+document.getElementById(‘state’).value = ‘’;
+document.getElementById(‘transcript-edit’).value = ‘’;
+document.getElementById(‘btn-process’).disabled = true;
+document.getElementById(‘voice-zone’).classList.remove(‘recording’,‘has-transcript’);
+document.getElementById(‘voice-status’).textContent = ‘Tap to record’;
+document.getElementById(‘voice-btn’).textContent = ‘🎙’;
+fullTranscript = ‘’;
+state.customer = {}; state.transcript = ‘’; state.parsed = null;
+goTo(‘screen-info’);
+}
+</script>
+
+</body>
+</html>
