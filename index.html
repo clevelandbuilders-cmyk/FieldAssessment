@@ -187,14 +187,15 @@ white-space:nowrap;transition:all .2s;flex-shrink:0;
 
 /* ── SETTINGS MODAL ── */
 .modal-overlay{
-display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);
-z-index:200;align-items:center;justify-content:center;padding:20px;
+display:flex;position:fixed;inset:0;background:rgba(0,0,0,0.85);
+z-index:9000;align-items:center;justify-content:center;padding:20px;
+opacity:0;pointer-events:none;transition:opacity .2s;
 }
-.modal-overlay.open{display:flex}
-.modal{background:var(–bg2);border:1px solid var(–border);border-radius:8px;width:100%;max-width:480px;padding:28px}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:#111009;border:1px solid rgba(184,146,42,0.2);border-radius:8px;width:100%;max-width:480px;padding:28px}
 .modal-title{font-family:‘Playfair Display’,serif;font-size:1.2rem;color:var(–cream);margin-bottom:4px}
 .modal-sub{font-size:0.78rem;color:var(–cream-dim);margin-bottom:24px}
-.modal-close{float:right;background:none;border:none;color:var(–cream-dim);font-size:1.2rem;cursor:pointer;margin-top:-4px}
+.modal-close{float:right;background:none;border:none;color:#9a9080;font-size:1.2rem;cursor:pointer;margin-top:-4px;padding:4px 8px}
 .saved-badge{display:inline-block;background:rgba(39,174,96,0.15);color:var(–green);font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:10px;margin-left:8px;display:none}
 
 /* ── PROCESSING INDICATOR ── */
